@@ -23,13 +23,20 @@ export function getInputRangeFromIndexes (range, index, carouselProps) {
     return inputRange;
 }
 
+export function getInputRangeScrollFromIndexes (length, index, carouselProps) {
+    const sizeRef = carouselProps.vertical ? carouselProps.itemHeight : carouselProps.itemWidth;
+    const start = index * sizeRef // 0 * 210 = 0 - 1 * 210 = 210
+    const end = ((index + 1) * sizeRef) - 1 // 1 * 210 = 210 - 2 * 210 = 420
+    const inputRange = [start - (sizeRef / 2) -1, start - (sizeRef / 2), start, start + (sizeRef/2), end, end + 1]
+    const outputRange = [0, 0, 1, 1, -1, -1]
+    return {inputRange, outputRange};
+}
+
 // Default behavior
 // Scale and/or opacity effect
 // Based on props 'inactiveSlideOpacity' and 'inactiveSlideScale'
-export function defaultScrollInterpolator (index, carouselProps) {
-    const range = [1, 0, -1];
-    const inputRange = getInputRangeFromIndexes(range, index, carouselProps);
-    const outputRange = [0, 1, 0];
+export function defaultScrollInterpolator (index, carouselProps, length) {
+    const {inputRange, outputRange} = getInputRangeScrollFromIndexes(length, index, carouselProps);
 
     return { inputRange, outputRange };
 }
@@ -40,20 +47,27 @@ export function defaultAnimatedStyles (index, animatedValue, carouselProps) {
     if (carouselProps.inactiveSlideOpacity < 1) {
         animatedOpacity = {
             opacity: animatedValue.interpolate({
-                inputRange: [0, 1],
-                outputRange: [carouselProps.inactiveSlideOpacity, 1]
+                inputRange: [-1, 0, 1],
+                outputRange: [carouselProps.inactiveSlideOpacity, carouselProps.inactiveSlideOpacity, 1]
             })
         };
     }
 
     if (carouselProps.inactiveSlideScale < 1) {
         animatedScale = {
-            transform: [{
+            transform: [
+                {
                 scale: animatedValue.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [carouselProps.inactiveSlideScale, 1]
-                })
-            }]
+                    inputRange: [-1, 0, 1],
+                    outputRange: [carouselProps.inactiveSlideScale, carouselProps.inactiveSlideScale, 1]
+                }),
+            },
+            { perspective: 750 },
+            {rotateY: animatedValue.interpolate({
+                inputRange: [-1, 0, 1],
+                outputRange: ['40deg', '-40deg', '0deg']
+            })}
+        ]
         };
     }
 
