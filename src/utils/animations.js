@@ -65,7 +65,7 @@ export function defaultAnimatedStyles (index, animatedValue, carouselProps) {
             { perspective: 750 },
             {rotateY: animatedValue.interpolate({
                 inputRange: [-1, 0, 1],
-                outputRange: ['40deg', '-40deg', '0deg']
+                outputRange: ['20deg', '-20deg', '0deg']
             })}
         ]
         };
